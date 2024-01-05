@@ -1,0 +1,39 @@
+import os
+import numpy as np
+from keras.preprocessing.image import ImageDataGenerator
+
+# define data path
+data_path = "/content/drive/Othercomputers/My Laptop/C-NMC_Leukemia/training_data/fold_0/hem"
+
+# define image dimensions and batch size
+img_width, img_height = 224, 224
+batch_size = 32
+
+# create image data generator with augmentation settings
+datagen = ImageDataGenerator(
+    rotation_range=20,
+    width_shift_range=0.2,
+    height_shift_range=0.2,
+    shear_range=0.1,
+    zoom_range=0.1,
+    horizontal_flip=True,
+    fill_mode='nearest')
+
+# load the training data for hem class
+train_data = os.path.join(data_path, "/content/drive/Othercomputers/My Laptop/C-NMC_Leukemia/training_data/fold_0/hem")
+
+# generate augmented images and save them to disk
+i = 0
+for batch in datagen.flow_from_directory(directory=train_data,
+                                         target_size=(img_width, img_height),
+                                         batch_size=batch_size,
+                                         class_mode='binary'):
+    for image in batch:
+        # save the augmented image to disk
+        image = np.asarray(image, dtype=np.uint8)
+        np.save(os.path.join(data_path, "/content/drive/Othercomputers/My Laptop/C-NMC_Leukemia/training_data/fold_0/Hem_aug", f"hem_{i}.npy"), image)
+        i += 1
+
+    # break the loop if we have generated enough images
+    if i >= 100: # we can generate as per the requirements here its 100
+        break
